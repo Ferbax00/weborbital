@@ -201,11 +201,20 @@ async def openapi_schema(request: Request):
     return app.openapi()
 
 
+def _cors_origins() -> list:
+    raw = os.environ.get(
+        "CORS_ORIGINS",
+        "https://ferbax00.github.io,http://localhost:5500,http://127.0.0.1:5500",
+    )
+    origins = [o.strip() for o in raw.split(",") if o.strip()]
+    return origins or ["*"]
+
+
 app.add_middleware(AdminAuthMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
+    allow_origins=_cors_origins(),
     allow_methods=["*"],
     allow_headers=["*"],
 )

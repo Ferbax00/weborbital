@@ -19,7 +19,7 @@ const ORBITAL_CONFIG = (function () {
     } else if (isLocal) {
         apiBaseUrl = 'http://localhost:8000';
     } else if (hostname.endsWith('.github.io')) {
-        apiBaseUrl = 'https://orbital-portal.preview.emergentagent.com';
+        apiBaseUrl = '';
     }
 
     if (!apiBaseUrl && !isLocal) {

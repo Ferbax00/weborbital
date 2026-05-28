@@ -22,7 +22,11 @@ async function handleFormSubmit(event) {
         form.reset();
     } catch (err) {
         console.error('Form submit error:', err);
-        OrbitalUI.showToast(err.message || 'Error al enviar la cotización', 'error');
+        var msg = err.message || 'Error al enviar la cotización';
+        if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+            msg = 'No hay conexión con el servidor. Configure la API (portal/js/env.js) o intente más tarde.';
+        }
+        OrbitalUI.showToast(msg, 'error');
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Enviar Cotización';
