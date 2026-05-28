@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- En producción: URL de tu API en Render (sin barra final). Vacío = usa portal/js/env.js -->
+    <meta name="orbital-api-url" content="">
+    <title>ORBITALDATA - Soluciones Tecnológicas</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">🛰️ ORBITALDATA</div>
+            <ul class="nav-menu">
+                <li><a href="#" onclick="scrollToSection('inicio')">Inicio</a></li>
+                <li><a href="#" onclick="scrollToSection('servicios')">Servicios</a></li>
+                <li><a href="#" onclick="scrollToSection('formulario')">Cotización</a></li>
+                <li><a href="#" onclick="scrollToSection('socios')">Socios</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="header" id="inicio">
+        <img src="https://ferbax00.github.io/orbitaldata/LOGO%201.png" alt="ORBITALDATA" style="height: 80px; margin-bottom: 1rem;" />
+        <h1>ORBITALDATA</h1>
+        <p>Telecomunicaciones · Redes · Datos · Campo y Operación</p>
+        <p class="subtitle">Soluciones tecnológicas, de datos y telecomunicaciones</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Servicios Section -->
+        <section id="servicios" class="section">
+            <h2>Nuestros Servicios</h2>
+            <div class="services-grid" id="servicesContainer"></div>
+        </section>
+
+        <!-- Formulario Section -->
+        <section id="formulario" class="section">
+            <h2>Solicita tu Cotización</h2>
+            <div class="form-section">
+                <p>Complete el formulario y nos pondremos en contacto con usted</p>
+                <form id="contactForm" onsubmit="handleFormSubmit(event)">
+                    <div class="form-group">
+                        <label for="name">Nombre Completo *</label>
+                        <input type="text" id="name" name="name" required placeholder="Ingrese su nombre" maxlength="200">
+                        <small>Máximo 200 caracteres</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico *</label>
+                        <input type="email" id="email" name="email" required placeholder="correo@ejemplo.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">Mensaje *</label>
+                        <textarea id="message" name="message" required placeholder="Cuéntenos qué servicios le interesan..." maxlength="2000"></textarea>
+                        <small>Máximo 2000 caracteres</small>
+                    </div>
+
+                    <button type="submit" id="submitBtn">Enviar Cotización</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Partners Section -->
+        <section id="socios" class="section">
+            <h2>Socios Tecnológicos</h2>
+            <p>Trabajamos con los mejores proveedores de tecnología en seguridad electrónica.</p>
+            <div class="partners-grid" id="partnersContainer"></div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 ORBITALDATA S.A.S. — Todos los derechos reservados</p>
+        <p>San Andrés Isla, Colombia · <a href="mailto:josfer38@gmail.com">josfer38@gmail.com</a></p>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="portal/js/env.js"></script>
+    <script src="portal/js/config.js"></script>
+    <script src="portal/js/api.js"></script>
+    <script src="portal/js/ui.js"></script>
+    <script src="portal/js/main.js"></script>
+</body>
+</html>

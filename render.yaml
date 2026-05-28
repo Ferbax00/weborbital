@@ -1,0 +1,22 @@
+# Despliegue del backend en https://render.com
+# 1. Conecta tu repo de GitHub
+# 2. Render detectará este archivo
+# 3. Añade variables: MONGO_URL, DB_NAME, ADMIN_KEY (opcional)
+
+services:
+  - type: web
+    name: orbitaldata-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements-local.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/
+    envVars:
+      - key: MONGO_URL
+        sync: false
+      - key: DB_NAME
+        value: orbitaldata
+      - key: ADMIN_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.11.9"
