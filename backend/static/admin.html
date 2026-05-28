@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORBITALDATA — Administración</title>
+    <style>
+        :root { --cyan: #0891b2; --dark: #0f172a; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; color: #334155; }
+        header {
+            background: linear-gradient(135deg, var(--dark), #164e63);
+            color: #fff; padding: 1.5rem 2rem;
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
+        }
+        header h1 { font-size: 1.35rem; }
+        header a { color: #cffafe; text-decoration: none; font-size: 0.9rem; }
+        header a:hover { text-decoration: underline; }
+        main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; align-items: center; }
+        .btn {
+            background: var(--cyan); color: #fff; border: none; padding: 0.6rem 1.2rem;
+            border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+        }
+        .btn:hover { background: #0e7490; }
+        .btn-outline { background: #fff; color: var(--cyan); border: 2px solid var(--cyan); }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1rem; text-align: center; }
+        .stat-card strong { display: block; font-size: 1.75rem; color: var(--cyan); }
+        .table-wrap { overflow-x: auto; background: #fff; border-radius: 12px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: var(--dark); color: #fff; }
+        tr:hover td { background: #f1f5f9; }
+        .msg { max-width: 320px; word-break: break-word; }
+        .empty, .error, .loading { text-align: center; padding: 3rem; color: #64748b; }
+        .error { color: #b91c1c; background: #fef2f2; border-radius: 8px; }
+        .badge { display: inline-block; background: #cffafe; color: #0e7490; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>ORBITALDATA — Panel de solicitudes</h1>
+            <span class="badge">Solo administración</span>
+        </div>
+        <div>
+            <a href="/docs" target="_blank">API Docs</a>
+            &nbsp;·&nbsp;
+            <a href="/api/">Health</a>
+            &nbsp;·&nbsp;
+            <form action="/admin/logout" method="post" style="display:inline;">
+                <button type="submit" style="background:none;border:none;color:#cffafe;cursor:pointer;font-size:0.9rem;text-decoration:underline;">Salir</button>
+            </form>
+        </div>
+    </header>
+    <main>
+        <div class="stats">
+            <div class="stat-card"><strong id="totalCount">—</strong> Total solicitudes</div>
+            <div class="stat-card"><strong id="todayCount">—</strong> Hoy</div>
+        </div>
+        <div class="toolbar">
+            <button class="btn" onclick="loadRequests()">Actualizar</button>
+            <button class="btn btn-outline" onclick="exportCsv()">Exportar CSV</button>
+            <span id="lastUpdate" style="font-size:0.85rem;color:#64748b;"></span>
+        </div>
+        <div id="content"><p class="loading">Cargando solicitudes...</p></div>
+    </main>
+    <script>
+        let allRequests = [];
+
+        async function loadRequests() {
+            const content = document.getElementById('content');
+            content.innerHTML = '<p class="loading">Cargando solicitudes...</p>';
+            try {
+                const res = await fetch('/api/contact-requests', { credentials: 'include' });
+                if (res.status === 401) {
+                    window.location.href = '/admin/login';
+                    return;
+                }
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                allRequests = await res.json();
+                renderTable(allRequests);
+                updateStats(allRequests);
+                document.getElementById('lastUpdate').textContent =
+                    'Última actualización: ' + new Date().toLocaleString('es-CO');
+            } catch (e) {
+                content.innerHTML = '<p class="error">Error al cargar: ' + e.message + '</p>';
+            }
+        }
+
+        function updateStats(list) {
+            document.getElementById('totalCount').textContent = list.length;
+            const today = new Date().toDateString();
+            const todayN = list.filter(r => r.created_at && new Date(r.created_at).toDateString() === today).length;
+            document.getElementById('todayCount').textContent = todayN;
+        }
+
+        function escapeHtml(t) {
+            const d = document.createElement('div');
+            d.textContent = t ?? '';
+            return d.innerHTML;
+        }
+
+        function renderTable(list) {
+            const content = document.getElementById('content');
+            if (!list.length) {
+                content.innerHTML = '<p class="empty">No hay solicitudes registradas.</p>';
+                return;
+            }
+            const rows = list.map(r => {
+                const date = r.created_at ? new Date(r.created_at).toLocaleString('es-CO') : '—';
+                return `<tr>
+                    <td>${escapeHtml(date)}</td>
+                    <td>${escapeHtml(r.name)}</td>
+                    <td><a href="mailto:${escapeHtml(r.email)}">${escapeHtml(r.email)}</a></td>
+                    <td class="msg">${escapeHtml(r.message)}</td>
+                </tr>`;
+            }).join('');
+            content.innerHTML = `<div class="table-wrap"><table>
+                <thead><tr><th>Fecha</th><th>Nombre</th><th>Email</th><th>Mensaje</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table></div>`;
+        }
+
+        function exportCsv() {
+            if (!allRequests.length) { alert('No hay datos para exportar'); return; }
+            const header = 'fecha,nombre,email,mensaje\n';
+            const rows = allRequests.map(r => {
+                const cols = [
+                    r.created_at || '',
+                    r.name || '',
+                    r.email || '',
+                    (r.message || '').replace(/"/g, '""')
+                ];
+                return cols.map(c => '"' + c + '"').join(',');
+            }).join('\n');
+            const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'solicitudes-orbitaldata.csv';
+            a.click();
+        }
+
+        loadRequests();
+        setInterval(loadRequests, 60000);
+    </script>
+</body>
+</html>
